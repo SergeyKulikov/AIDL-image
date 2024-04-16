@@ -1,5 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
-<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    package="auto.atom.testsetvice"
+    >
 
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE"/>
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE_DATA_SYNC"/>
@@ -13,9 +15,10 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.MyApplication">
         <service
-            android:name=".SpeedometerService"
+            android:name="auto.atom.testsetvice.SpeedometerService"
             android:foregroundServiceType="dataSync"
-            android:exported="false">
+            android:enabled="true"
+            android:exported="true">
         </service>
 
     </application>
