@@ -8,7 +8,6 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
@@ -18,19 +17,9 @@ import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
-import androidx.lifecycle.ViewModel
 import kotlin.math.cos
 import kotlin.math.min
 import kotlin.math.sin
-
-class SpeedometerViewModel : ViewModel() {
-    val currentSpeed = mutableStateOf(20f)
-
-    fun updateSpeed(speed: Float) {
-        currentSpeed.value = speed
-    }
-
-}
 
 @Composable
 fun Speedometer(speedometerViewModel: SpeedometerViewModel) {
@@ -54,19 +43,29 @@ fun Speedometer(speedometerViewModel: SpeedometerViewModel) {
         textList, 150.dp, 180f, 360f, paint
     )
 
-    AnimatedArrow(currentSpeed)
+    AnimatedArrow(currentSpeed, 150.dp)
 
 
 }
 
+/**
+ * Composable function for drawing strokes around a circle.
+ *
+ * @param strokeLength The length of the stroke.
+ * @param distanceFromCenter The distance from the center of the circle.
+ * @param startAngle The starting angle in degrees.
+ * @param endAngle The ending angle in degrees.
+ * @param numberOfStrokes The number of strokes around the circle.
+ * @param strokeWidth The width of the stroke.
+ */
 @Composable
 fun StrokesAroundCircle(
-    strokeLength: Dp, // длина штриха
-    distanceFromCenter: Dp, // расстояние от центра
-    startAngle: Float, // начальный угол в градусах
-    endAngle: Float, // конечный угол в градусах
-    numberOfStrokes: Int, // число штрихов
-    strokeWidth: Dp // толщина штриха
+    strokeLength: Dp,
+    distanceFromCenter: Dp,
+    startAngle: Float,
+    endAngle: Float,
+    numberOfStrokes: Int,
+    strokeWidth: Dp
 ) {
     Canvas(modifier = Modifier.fillMaxSize()) {
         val centerX = size.width / 2f
@@ -93,14 +92,22 @@ fun StrokesAroundCircle(
     }
 }
 
-
+/**
+ * Composable function for displaying text around a circle.
+ *
+ * @param textList The list of strings to be displayed.
+ * @param distanceFromCenter The distance from the center of the circle.
+ * @param startAngle The starting angle in degrees.
+ * @param endAngle The ending angle in degrees.
+ * @param paint The paint object containing font parameters.
+ **/
 @Composable
 fun TextAroundCircle(
-    textList: List<String>, // список строк для отображения
-    distanceFromCenter: Dp, // расстояние от центра
-    startAngle: Float, // начальный угол в градусах
-    endAngle: Float, // конечный угол в градусах
-    paint: Paint// параметры шрифта
+    textList: List<String>,
+    distanceFromCenter: Dp,
+    startAngle: Float,
+    endAngle: Float,
+    paint: Paint
 ) {
     Canvas(modifier = Modifier.fillMaxSize()) {
         val centerX = size.width / 2f
@@ -120,16 +127,21 @@ fun TextAroundCircle(
     }
 }
 
+/**
+ * Composable function for drawing an arrow of speedometer.
+ *
+ * @param distanceFromCenter The distance from the center of the circle.
+ * @param angle The angle in degrees at which the arrow should point.
+ */
 @Composable
 fun drawArrow(
-    distanceFromCenter: Dp, // расстояние от центра
-    angle: Float, // угол в градусах
+    distanceFromCenter: Dp,
+    angle: Float,
 ) {
     Canvas(modifier = Modifier.fillMaxSize()) {
         val centerX = size.width / 2f
         val centerY = size.height / 2f
         val radius = distanceFromCenter.toPx()
-
 
         val endX = centerX + radius * cos(Math.toRadians(angle.toDouble())).toFloat()
         val endY = centerY - radius * sin(Math.toRadians(angle.toDouble())).toFloat()
@@ -140,21 +152,16 @@ fun drawArrow(
             end = Offset(endX, endY),
             strokeWidth = 2.dp.toPx()
         )
-
-
     }
 }
 
 @Composable
-fun AnimatedArrow(angle: Float) {
+fun AnimatedArrow(angle: Float, distanceFromCenter:Dp) {
     val animatedAngle = remember { Animatable(0f) }
-
     LaunchedEffect(angle) {
         animatedAngle.animateTo(angle, animationSpec = tween(durationMillis = 500))
-        //FIXME: вращение стрелки должно происходить с постоянной угловой скоростью а не просто по времени
     }
-
-    drawArrow(distanceFromCenter = 150.dp, angle = animatedAngle.value)
+    drawArrow(distanceFromCenter, angle = animatedAngle.value)
 }
 
 @Preview
@@ -162,5 +169,4 @@ fun AnimatedArrow(angle: Float) {
 fun SpeedometerPreview() {
     val viewModel = SpeedometerViewModel()
     Speedometer(speedometerViewModel = viewModel)
-
 }
