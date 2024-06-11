@@ -5,6 +5,7 @@ import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -17,10 +18,18 @@ import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import auto.atom.testapplication.ui.theme.MyApplicationTheme
 import kotlin.math.cos
 import kotlin.math.min
 import kotlin.math.sin
 
+
+/**
+ * Composable function representing a speedometer display.
+ * It includes drawing strokes and text around a circle to indicate the speed.
+ *
+ * @param speedometerViewModel The view model providing the current speed value.
+ */
 @Composable
 fun Speedometer(speedometerViewModel: SpeedometerViewModel) {
     val currentSpeed by speedometerViewModel.currentSpeed
@@ -168,5 +177,11 @@ fun AnimatedArrow(angle: Float, distanceFromCenter:Dp) {
 @Composable
 fun SpeedometerPreview() {
     val viewModel = SpeedometerViewModel()
-    Speedometer(speedometerViewModel = viewModel)
+
+    MyApplicationTheme {
+        Surface {
+            Speedometer(speedometerViewModel = viewModel)
+
+        }
+    }
 }

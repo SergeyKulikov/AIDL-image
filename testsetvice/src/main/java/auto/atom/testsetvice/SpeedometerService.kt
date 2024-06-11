@@ -12,6 +12,11 @@ import kotlinx.coroutines.cancel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
+
+/**
+ * A service class representing a Speedometer Service.
+ * This service provides functionality to simulate speed changes and manage notification channels.
+ */
 class SpeedometerService : Service() {
 
     private val serviceScope = CoroutineScope()
@@ -39,13 +44,19 @@ class SpeedometerService : Service() {
         TODO()
     }
 
-    fun createNotificationChannel() {
+    /**
+     * Creates a notification channel for the Speedometer Service.
+     */
+    private fun createNotificationChannel() {
         val notificationChannel = NotificationChannel(CHANNEL_ID, CHANNEL_NAME, NotificationManager.IMPORTANCE_DEFAULT)
         val notificationManager = getSystemService(NotificationManager::class.java)
         notificationManager.createNotificationChannel(notificationChannel)
     }
 
-    val notification
+    /**
+     * Notification for the Speedometer Service.
+     */
+    private val notification
         get() = NotificationCompat.Builder(this, CHANNEL_ID)
             .setSmallIcon(R.mipmap.ic_launcher)
             .setContentTitle("Foreground speedometer service")
