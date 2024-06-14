@@ -17,3 +17,4 @@ rootProject.name = "My Application"
 include(":app")
 include(":testsetvice")
 include(":ISpeedometerService")
+include(":appHud")
