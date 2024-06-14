@@ -5,18 +5,18 @@ import android.os.Parcel
 import android.os.Parcelable
 
 class AtomParcel() : Parcelable {
-    var data: String = "default text"
+    var data: Float = 0f
 
     constructor(parcel: Parcel) : this() {
         readFromParcel(parcel)
     }
 
     fun readFromParcel(parcel: Parcel) {
-        data = parcel.readString().toString()
+        data = parcel.readFloat()
     }
 
     override fun writeToParcel(parcel: Parcel, flags: Int) {
-        parcel.writeString(data)
+        parcel.writeFloat(data)
     }
 
     override fun describeContents(): Int {

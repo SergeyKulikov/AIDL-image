@@ -8,8 +8,9 @@ import android.content.pm.ServiceInfo
 import android.os.IBinder
 import android.util.Log
 import androidx.core.app.NotificationCompat
-import auto.atom.speedometer.service.ISpeedometerService
-import auto.atom.speedometer.service.ISpeedometerServiceCallback
+import auto.atom.speedometer.service.AtomParcel
+import auto.atom.speedometer.service.ISpeedometerServiceCallbackParcel
+import auto.atom.speedometer.service.ISpeedometerServiceParcel
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.cancel
@@ -22,10 +23,33 @@ class SpeedometerService : Service() {
     private var number: Double = 0.0
 
     private val serviceScope = CoroutineScope(Dispatchers.IO)
-    private var callback:ISpeedometerServiceCallback? = null
+    private var callback: ISpeedometerServiceCallbackParcel? = null
+
+    /*
     private val binder = object : ISpeedometerService.Stub() {
         override fun setCallback(callback: ISpeedometerServiceCallback?) {
             this@SpeedometerService.callback = callback
+        }
+    }
+    */
+
+    private val binder = object : ISpeedometerServiceParcel.Stub() {
+        /*
+        override fun setValue(
+            incomeData: AtomParcel?,
+            callback: ISpeedometerServiceCallbackParcel?
+        ) {
+            this@SpeedometerService.number = incomeData?.data?.toDouble() ?: -2.0
+            this@SpeedometerService.callback = callback
+        }
+
+         */
+
+        override fun setValue(incomeData: AtomParcel?, outgoingData: AtomParcel?) {
+            Log.d(TAG, "--> ПОЛУЧИЛИ В СЕРВИС: "+incomeData?.data.toString())
+            this@SpeedometerService.number = incomeData?.data?.toDouble() ?: -2.0
+            outgoingData?.data = (incomeData?.data ?: 0f).toFloat()
+            Log.d(TAG, "<-- ОТПРАВИЛИ ИЗ СЕРВИСА: "+(outgoingData?.data?.toDouble() ?: 3.0).toString())
         }
     }
 
@@ -57,7 +81,8 @@ class SpeedometerService : Service() {
         serviceScope.launch {
             while (true){
                 delay(3000)
-                callback?.onSpeedChanged(number.toFloat())
+                // callback?.onSpeedChanged(number.toFloat())
+                callback?.onParecelBallbackData(AtomParcel().apply { number })
                 Log.d(TAG, "onSpeedChanged() called")
             }
         }
