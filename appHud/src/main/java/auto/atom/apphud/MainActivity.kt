@@ -38,6 +38,7 @@ class MainActivity : AppCompatActivity() {
     }
     */
 
+
     var aidlInterface: ISpeedometerServiceParcel? = null
     // var callbackParcel: ISpeedometerServiceCallbackParcel? = null
 
@@ -54,7 +55,7 @@ class MainActivity : AppCompatActivity() {
 
             aidlInterface = ISpeedometerServiceParcel.Stub.asInterface(iBinder)
 
-            aidlInterface.setCallback(callback)
+            // aidlInterface?.setCallback(callback)
             // callbackParcel = ISpeedometerServiceCallbackParcel.Stub.asInterface(iBinder)
         }
 
@@ -85,10 +86,9 @@ class MainActivity : AppCompatActivity() {
             data = (Math.random()*180).toFloat()
         }
 
-        var callback: AtomParcel = AtomParcel()
+            // var callback: AtomParcel = AtomParcel()
 
         aidlInterface?.setValue(number, callback)
-        Log.d(TAG, "callback ->>> : "+callback.data)
 
         return number?.data.toString()
     }

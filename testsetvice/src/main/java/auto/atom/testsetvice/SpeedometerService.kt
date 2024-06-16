@@ -45,11 +45,18 @@ class SpeedometerService : Service() {
 
          */
 
-        override fun setValue(incomeData: AtomParcel?, outgoingData: AtomParcel?) {
+
+        override fun setValue(incomeData: AtomParcel?, callback: ISpeedometerServiceCallbackParcel?) {
             Log.d(TAG, "--> ПОЛУЧИЛИ В СЕРВИС: "+incomeData?.data.toString())
             this@SpeedometerService.number = incomeData?.data?.toDouble() ?: -2.0
-            outgoingData?.data = (incomeData?.data ?: 0f).toFloat()
-            Log.d(TAG, "<-- ОТПРАВИЛИ ИЗ СЕРВИСА: "+(outgoingData?.data?.toDouble() ?: 3.0).toString())
+
+            // Log.d(TAG, "<-- ОТПРАВИЛИ ИЗ СЕРВИСА: "+(outgoingData?.data?.toDouble() ?: 3.0).toString())
+
+            var newValue: Float = (incomeData?.data ?: 0).toFloat() + 100f
+            var outgoingData = AtomParcel().apply { data = newValue }
+            callback?.onParecelBallbackData(outgoingData)
+
+            Log.d(TAG, "<-- ОТПРАВИЛИ ИЗ СЕРВИСА: "+outgoingData.data.toString())
         }
     }
 
