@@ -6,6 +6,10 @@ import auto.atom.speedometer.service.AtomParcel;
 // parcelable AtomParcel;
 
 interface ISpeedometerServiceParcel {
-    // void setValue(in AtomParcel incomeData, in ISpeedometerServiceCallbackParcel callback);
-    void setValue(in AtomParcel incomeData, in AtomParcel outgoingData);
+    // регистрируем callback из Application. Если он не зарегистрирован,
+    // то обратно данные отправить будет нельзя.
+    void setCallback(ISpeedometerServiceCallbackParcel callback);
+
+     // после регистрации можно отсылать данные из Application
+    void setValue(in AtomParcel incomeData);
 }

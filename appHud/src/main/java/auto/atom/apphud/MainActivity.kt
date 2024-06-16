@@ -39,7 +39,7 @@ class MainActivity : AppCompatActivity() {
     */
 
     var aidlInterface: ISpeedometerServiceParcel? = null
-    var callbackParcel: ISpeedometerServiceCallbackParcel? = null
+    // var callbackParcel: ISpeedometerServiceCallbackParcel? = null
 
     private var callback = object : ISpeedometerServiceCallbackParcel.Stub(){
         override fun onParecelBallbackData(atomData: AtomParcel?) {
@@ -53,6 +53,8 @@ class MainActivity : AppCompatActivity() {
             Log.d(TAG, "onServiceConnected() called with: name = $name, iBinder = $iBinder")
 
             aidlInterface = ISpeedometerServiceParcel.Stub.asInterface(iBinder)
+
+            aidlInterface.setCallback(callback)
             // callbackParcel = ISpeedometerServiceCallbackParcel.Stub.asInterface(iBinder)
         }
 
