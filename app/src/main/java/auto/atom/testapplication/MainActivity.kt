@@ -117,7 +117,7 @@ class MainActivity : ComponentActivity() {
                         // callback?.onSpeedChanged(number.toFloat())
                         val bitmap: Bitmap = resources.getDrawable(R.drawable.test_img).toBitmap()
 
-                        val data = AtomImage(bitmap)
+                        val data = AtomImage(bitmap, 4)
 
                         it.sendImage(0, data, callback)
                         Log.d(TAG, "Отправляем данные: "+bitmap.byteCount)
