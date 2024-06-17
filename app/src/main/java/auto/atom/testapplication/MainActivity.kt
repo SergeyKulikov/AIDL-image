@@ -4,6 +4,7 @@ import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
 import android.content.ServiceConnection
+import android.graphics.Bitmap
 import android.os.Bundle
 import android.os.IBinder
 import android.util.Log
@@ -14,7 +15,9 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.ui.Modifier
+import androidx.core.graphics.drawable.toBitmap
 import androidx.lifecycle.MutableLiveData
+import auto.atom.speedometer.service.AtomImage
 import auto.atom.speedometer.service.AtomParcel
 import auto.atom.speedometer.service.ISpeedometerService
 import auto.atom.speedometer.service.ISpeedometerServiceCallback
@@ -58,7 +61,11 @@ class MainActivity : ComponentActivity() {
     private var callback = object : ISpeedometerServiceCallbackParcel.Stub(){
         override fun onParecelBallbackData(atomData: AtomParcel?) {
             val speed = atomData?.data ?: -1f
-            Log.d(TAG, "onSpeedChanged: $speed")
+            Log.d(TAG, "FLOAT из сервиса onSpeedChanged: $speed")
+        }
+
+        override fun onImageBack(atomImage: AtomImage?) {
+            Log.d(TAG, "onImageBack: $atomImage")
         }
     }
 
@@ -80,6 +87,7 @@ class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
+
         val serviceIntent = Intent()
         serviceIntent.component = ComponentName("auto.atom.testsetvice", "auto.atom.testsetvice.SpeedometerService")
 
@@ -90,6 +98,7 @@ class MainActivity : ComponentActivity() {
 
         aidlInterface.observeForever { itrf ->
             itrf?.let {
+                /*
                 serviceScope.launch {
                     while (true){
                         delay(3000)
@@ -98,8 +107,25 @@ class MainActivity : ComponentActivity() {
                         Log.d(TAG, "Отправляем данные")
                     }
                 }
+                */
+
+                serviceScope.launch {
+                    while (true){
+                        delay(3000)
+                        it.setValue(AtomParcel().apply { data = 11.33f }, callback)
+
+                        // callback?.onSpeedChanged(number.toFloat())
+                        val bitmap: Bitmap = resources.getDrawable(R.drawable.test_img).toBitmap()
+
+                        val data = AtomImage(bitmap)
+
+                        it.sendImage(0, data, callback)
+                        Log.d(TAG, "Отправляем данные: "+bitmap.byteCount)
+                    }
+                }
             }
         }
+
 
 
         setContent {
@@ -119,8 +145,12 @@ class MainActivity : ComponentActivity() {
                     Speedometer(speedometerViewModel = viewModel)
                 }
 
+
+
             }
         }
+
+
 
 
     }

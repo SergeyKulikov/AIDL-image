@@ -5,9 +5,11 @@ import android.app.NotificationManager
 import android.app.Service
 import android.content.Intent
 import android.content.pm.ServiceInfo
+import android.graphics.Bitmap
 import android.os.IBinder
 import android.util.Log
 import androidx.core.app.NotificationCompat
+import auto.atom.speedometer.service.AtomImage
 import auto.atom.speedometer.service.AtomParcel
 import auto.atom.speedometer.service.ISpeedometerServiceCallbackParcel
 import auto.atom.speedometer.service.ISpeedometerServiceParcel
@@ -21,7 +23,7 @@ class SpeedometerService : Service() {
     private val TAG = "SpeedometerService"
 
     private var number: Double = 0.0
-
+    private var bitmap: Bitmap? = null
     private val serviceScope = CoroutineScope(Dispatchers.IO)
     private var callback: ISpeedometerServiceCallbackParcel? = null
 
@@ -34,29 +36,48 @@ class SpeedometerService : Service() {
     */
 
     private val binder = object : ISpeedometerServiceParcel.Stub() {
-        /*
-        override fun setValue(
-            incomeData: AtomParcel?,
-            callback: ISpeedometerServiceCallbackParcel?
-        ) {
-            this@SpeedometerService.number = incomeData?.data?.toDouble() ?: -2.0
-            this@SpeedometerService.callback = callback
-        }
-
-         */
-
-
         override fun setValue(incomeData: AtomParcel?, callback: ISpeedometerServiceCallbackParcel?) {
-            Log.d(TAG, "--> ПОЛУЧИЛИ В СЕРВИС: "+incomeData?.data.toString())
-            this@SpeedometerService.number = incomeData?.data?.toDouble() ?: -2.0
+            val gotNumber = incomeData?.data as Float
+
+            //Log.d(TAG, "--> FLOAT ПОЛУЧИЛИ В СЕРВИС: "+incomeData?.data.toString())
+            Log.d(TAG, "--> FLOAT ПОЛУЧИЛИ В СЕРВИС: "+gotNumber.toDouble().toString())
+            this@SpeedometerService.number = gotNumber.toDouble() //incomeData?.data?.toDouble() ?: -2.0
+            Log.d(TAG, "--> FLOAT ЗАПИСАЛИ В СЕРВИС: "+this@SpeedometerService.number.toString())
 
             // Log.d(TAG, "<-- ОТПРАВИЛИ ИЗ СЕРВИСА: "+(outgoingData?.data?.toDouble() ?: 3.0).toString())
 
-            var newValue: Float = (incomeData?.data ?: 0).toFloat() + 100f
-            var outgoingData = AtomParcel().apply { data = newValue }
+            var newValue: Float = this@SpeedometerService.number.toFloat() + 100f
+            Log.d(TAG, "--> FLOAT СОЗДАЛИ НОВОЕ ЗНАЧЕНИЕ: "+ newValue.toString())
+            var outgoingData = AtomParcel()
+            outgoingData.data = newValue
+
+            Log.d(TAG, "--> FLOAT ЗАПИСАЛИ НОВОЕ ЗНАЧЕНИЕ: "+ outgoingData.data.toString()+"/ "+newValue)
             callback?.onParecelBallbackData(outgoingData)
 
-            Log.d(TAG, "<-- ОТПРАВИЛИ ИЗ СЕРВИСА: "+outgoingData.data.toString())
+            Log.d(TAG, "<-- FLOAT ОТПРАВИЛИ ИЗ СЕРВИСА: "+outgoingData.data.toString())
+        }
+
+        override fun sendImage(
+            type: Int,
+            incomeData: AtomImage?,
+            callback: ISpeedometerServiceCallbackParcel?
+        ) {
+            if (type == 0) {
+                Log.d(TAG, "--> ПОЛУЧИЛИ КАРТИНКУ В СЕРВИС: " + incomeData?.getBitmap())
+                if (incomeData != null) {
+                    incomeData.getBitmap()?.let {
+                        this@SpeedometerService.bitmap = it
+                    }
+                }
+            }
+
+            if (type == 1) {
+                var outgoingData = AtomImage(this@SpeedometerService.bitmap)
+                callback?.onImageBack(outgoingData)
+                Log.d(TAG,
+                    "<-- ОТПРАВИЛИ ИЗ СЕРВИСА КАРТИНКУ: "+(outgoingData.getBitmap()?.byteCount ?: -900).toString()
+                )
+            }
         }
     }
 
@@ -88,9 +109,9 @@ class SpeedometerService : Service() {
         serviceScope.launch {
             while (true){
                 delay(3000)
-                // callback?.onSpeedChanged(number.toFloat())
+
                 callback?.onParecelBallbackData(AtomParcel().apply { number })
-                Log.d(TAG, "onSpeedChanged() called")
+                Log.d(TAG, "onSpeedChanged() called: $number")
             }
         }
 

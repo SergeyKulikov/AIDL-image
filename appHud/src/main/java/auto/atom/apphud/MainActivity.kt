@@ -4,21 +4,28 @@ import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
 import android.content.ServiceConnection
-import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.os.IBinder
 import android.util.Log
+import android.widget.ImageView
 import android.widget.TextView
+import androidx.appcompat.app.AppCompatActivity
+import auto.atom.speedometer.service.AtomImage
 import auto.atom.speedometer.service.AtomParcel
-import auto.atom.speedometer.service.ISpeedometerService
-import auto.atom.speedometer.service.ISpeedometerServiceCallback
 import auto.atom.speedometer.service.ISpeedometerServiceCallbackParcel
 import auto.atom.speedometer.service.ISpeedometerServiceParcel
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
+
 
 class MainActivity : AppCompatActivity() {
     private  val TAG = "MainActivityHUD"
 
     private var number: AtomParcel? = null
+
+    private lateinit var destImageView: ImageView
 
     /*
     private var callback = object : ISpeedometerServiceCallback.Stub(){
@@ -45,9 +52,23 @@ class MainActivity : AppCompatActivity() {
     private var callback = object : ISpeedometerServiceCallbackParcel.Stub(){
         override fun onParecelBallbackData(atomData: AtomParcel?) {
             val speed = atomData?.data ?: -1f
-            Log.d(TAG, "onSpeedChanged: $speed")
+            Log.d(TAG, "get onSpeedChanged: $speed")
+        }
+
+        override fun onImageBack(atomImage: AtomImage?) {
+            if (atomImage != null) {
+                val bitmap = atomImage.getBitmap()
+                Log.d(TAG, "Прибежала картинка: " +bitmap?.byteCount)
+
+                runOnUiThread(Thread {
+                    destImageView.setImageBitmap(bitmap)
+                })
+
+            }
         }
     }
+
+
 
     private val connection = object : ServiceConnection {
         override fun onServiceConnected(name: ComponentName?, iBinder: IBinder?) {
@@ -78,6 +99,16 @@ class MainActivity : AppCompatActivity() {
 
         findViewById<TextView>(R.id.tvNum)?.setOnClickListener {
             (it as TextView).text = sendData()
+        }
+
+        destImageView = findViewById<ImageView>(R.id.destImageView)
+        destImageView.apply {
+            CoroutineScope(Dispatchers.IO).launch {
+                while (true) {
+                    delay(3000)
+                    aidlInterface?.sendImage(1, AtomImage(), callback)
+                }
+            }
         }
     }
 
